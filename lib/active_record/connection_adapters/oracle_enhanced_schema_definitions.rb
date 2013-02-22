@@ -26,7 +26,7 @@ module ActiveRecord
     module OracleEnhancedTableDefinition
       class ForeignKey < Struct.new(:base, :to_table, :options) #:nodoc:
         def to_sql
-          base.foreign_key_definition(to_table, options)
+          base.foreign_key_definition(to_table, options) << base.table_definition_tablespace
         end
         alias to_s :to_sql
       end
