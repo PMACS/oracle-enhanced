@@ -4,13 +4,18 @@ module ActiveRecord
     class OracleEnhancedConnection #:nodoc:
 
       def self.create(config)
-        case ORACLE_ENHANCED_CONNECTION
-        when :oci
-          OracleEnhancedOCIConnection.new(config)
-        when :jdbc
-          OracleEnhancedJDBCConnection.new(config)
-        else
-          nil
+        connection = create_connection(config)
+        unless connection.nil?
+          connection.after_initialize(config)
+        end
+        connection
+      end
+
+      def after_initialize(config)
+        schema = config[:schema]
+        unless schema.blank?
+          exec "alter session set current_schema = #{schema}"
+          @owner = schema.upcase
         end
       end
 
@@ -98,11 +103,22 @@ module ActiveRecord
         result.map { |r| r.values.first }
       end
 
+
+      protected
+      def self.create_connection(config)
+        case ORACLE_ENHANCED_CONNECTION
+        when :oci
+          OracleEnhancedOCIConnection.new(config)
+        when :jdbc
+          OracleEnhancedJDBCConnection.new(config)
+        else
+          nil
+        end
+      end
     end
     
     class OracleEnhancedConnectionException < StandardError #:nodoc:
     end
-
   end
 end
 
