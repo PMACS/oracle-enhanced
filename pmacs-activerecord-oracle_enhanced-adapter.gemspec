@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = "activerecord-oracle_enhanced-adapter"
+  s.name = "pmacs-activerecord-oracle_enhanced-adapter"
   s.version = "1.4.2.rc1.patch"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Raimonds Simanovskis"]
-  s.date = "2013-02-25"
+  s.authors = ["Charles Treatman", "Raimonds Simanovskis"]
+  s.date = "2013-02-22"
   s.description = "Oracle \"enhanced\" ActiveRecord adapter contains useful additional methods for working with new and legacy Oracle databases.\nThis adapter is superset of original ActiveRecord Oracle adapter.\n"
-  s.email = "raimonds.simanovskis@gmail.com"
+  s.email = "charles.treatman@gmail.com"
   s.extra_rdoc_files = [
     "README.md"
   ]
@@ -24,7 +24,6 @@ Gem::Specification.new do |s|
     "RUNNING_TESTS.md",
     "Rakefile",
     "VERSION",
-    "activerecord-oracle_enhanced-adapter.gemspec",
     "lib/active_record/connection_adapters/emulation/oracle_adapter.rb",
     "lib/active_record/connection_adapters/oracle_enhanced.rake",
     "lib/active_record/connection_adapters/oracle_enhanced_activerecord_patches.rb",
@@ -46,7 +45,8 @@ Gem::Specification.new do |s|
     "lib/active_record/connection_adapters/oracle_enhanced_structure_dump.rb",
     "lib/active_record/connection_adapters/oracle_enhanced_tasks.rb",
     "lib/active_record/connection_adapters/oracle_enhanced_version.rb",
-    "lib/activerecord-oracle_enhanced-adapter.rb",
+    "lib/pmacs-activerecord-oracle_enhanced-adapter.rb",
+    "pmacs-activerecord-oracle_enhanced-adapter.gemspec",
     "spec/active_record/connection_adapters/oracle_enhanced_adapter_spec.rb",
     "spec/active_record/connection_adapters/oracle_enhanced_connection_spec.rb",
     "spec/active_record/connection_adapters/oracle_enhanced_context_index_spec.rb",
@@ -62,7 +62,7 @@ Gem::Specification.new do |s|
     "spec/active_record/connection_adapters/oracle_enhanced_structure_dump_spec.rb",
     "spec/spec_helper.rb"
   ]
-  s.homepage = "http://github.com/rsim/oracle-enhanced"
+  s.homepage = "http://github.com/pmacs/oracle-enhanced"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.21"
   s.summary = "Oracle enhanced adapter for ActiveRecord"
