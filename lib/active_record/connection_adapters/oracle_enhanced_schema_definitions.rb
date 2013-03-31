@@ -11,12 +11,14 @@ module ActiveRecord
     end
 
     module OracleEnhancedColumnDefinition
-       def self.included(base) #:nodoc:
-        base.class_eval do
-          alias_method_chain :to_sql, :virtual_columns
-          alias to_s :to_sql
+      if ActiveRecord::VERSION::MAJOR < 4
+        def self.included(base) #:nodoc:
+          base.class_eval do
+            alias_method_chain :to_sql, :virtual_columns
+            alias to_s :to_sql
+          end
         end
-       end
+      end
 
       def to_sql_with_virtual_columns
         if type == :virtual
@@ -45,26 +47,30 @@ module ActiveRecord
         base::ColumnDefinition.class_eval do
           include OracleEnhancedColumnDefinition
         end
-        
+
         # Available starting from ActiveRecord 2.1
         base::Table.class_eval do
           include OracleEnhancedTable
         end if defined?(base::Table)
       end
     end
-  
+
     module OracleEnhancedTableDefinition
-      class ForeignKey < Struct.new(:base, :to_table, :options) #:nodoc:
-        def to_sql
-          base.foreign_key_definition(to_table, options) << base.table_definition_tablespace
+      if ActiveRecord::VERSION::MAJOR < 4
+        class ForeignKey < Struct.new(:base, :to_table, :options) #:nodoc:
+          def to_sql
+            base.foreign_key_definition(to_table, options) << base.table_definition_tablespace
+          end
+          alias to_s :to_sql
         end
-        alias to_s :to_sql
       end
 
       def self.included(base) #:nodoc:
         base.class_eval do
           alias_method_chain :references, :foreign_keys
-          alias_method_chain :to_sql, :foreign_keys
+          if ActiveRecord::VERSION::MAJOR < 4
+            alias_method_chain :to_sql, :foreign_keys
+          end
 
           alias_method_chain :column, :virtual_columns
         end
@@ -95,17 +101,17 @@ module ActiveRecord
         end
         column_without_virtual_columns(name, type, options)
       end
-    
+
       # Adds a :foreign_key option to TableDefinition.references.
       # If :foreign_key is true, a foreign key constraint is added to the table.
       # You can also specify a hash, which is passed as foreign key options.
-      # 
+      #
       # ===== Examples
       # ====== Add goat_id column and a foreign key to the goats table.
       #  t.references(:goat, :foreign_key => true)
       # ====== Add goat_id column and a cascading foreign key to the goats table.
       #  t.references(:goat, :foreign_key => {:dependent => :delete})
-      # 
+      #
       # Note: No foreign key is created if :polymorphic => true is used.
       # Note: If no name is specified, the database driver creates one for you!
       def references_with_foreign_keys(*args)
@@ -115,15 +121,15 @@ module ActiveRecord
 
         if fk_options && !options[:polymorphic]
           fk_options = {} if fk_options == true
-          args.each do |to_table| 
-            foreign_key(to_table, fk_options) 
+          args.each do |to_table|
+            foreign_key(to_table, fk_options)
             add_index(to_table, "#{to_table}_id", index_options.is_a?(Hash) ? index_options : nil) if index_options
           end
         end
 
         references_without_foreign_keys(*(args << options))
       end
-  
+
       # Defines a foreign key for the table. +to_table+ can be a single Symbol, or
       # an Array of Symbols. See SchemaStatements#add_foreign_key
       #
@@ -144,17 +150,19 @@ module ActiveRecord
           raise ArgumentError, "this ActiveRecord adapter is not supporting foreign_key definition"
         end
       end
-    
-      def to_sql_with_foreign_keys #:nodoc:
-        sql = to_sql_without_foreign_keys
-        sql << ', ' << (foreign_keys * ', ') unless foreign_keys.blank?
-        sql
+
+      if ActiveRecord::VERSION::MAJOR < 4
+        def to_sql_with_foreign_keys #:nodoc:
+          sql = to_sql_without_foreign_keys
+          sql << ', ' << (foreign_keys * ', ') unless foreign_keys.blank?
+          sql
+        end
       end
 
       def lob_columns
         columns.select(&:lob?)
       end
-    
+
       private
         def foreign_keys
           @foreign_keys ||= []
@@ -188,7 +196,7 @@ module ActiveRecord
           raise ArgumentError, "this ActiveRecord adapter is not supporting foreign_key definition"
         end
       end
-  
+
       # Remove the given foreign key from the table.
       #
       # ===== Examples
@@ -201,17 +209,17 @@ module ActiveRecord
       def remove_foreign_key(options = {})
         @base.remove_foreign_key(@table_name, options)
       end
-    
+
       # Adds a :foreign_key option to TableDefinition.references.
       # If :foreign_key is true, a foreign key constraint is added to the table.
       # You can also specify a hash, which is passed as foreign key options.
-      # 
+      #
       # ===== Examples
       # ====== Add goat_id column and a foreign key to the goats table.
       #  t.references(:goat, :foreign_key => true)
       # ====== Add goat_id column and a cascading foreign key to the goats table.
       #  t.references(:goat, :foreign_key => {:dependent => :delete})
-      # 
+      #
       # Note: No foreign key is created if :polymorphic => true is used.
       def references_with_foreign_keys(*args)
         options = args.extract_options!
@@ -224,8 +232,8 @@ module ActiveRecord
         args.extract_options!
         if fk_options && !polymorphic
           fk_options = {} if fk_options == true
-          args.each do |to_table| 
-            foreign_key(to_table, fk_options) 
+          args.each do |to_table|
+            foreign_key(to_table, fk_options)
             add_index(to_table, "#{to_table}_id", index_options.is_a?(Hash) ? index_options : nil) if index_options
           end
         end
