@@ -174,8 +174,6 @@ describe "OracleEnhancedAdapter context index" do
   describe "on multiple tables" do
     before(:all) do
       @conn = ActiveRecord::Base.connection
-      @oracle12c = !! @conn.select_value(
-                      "select * from product_component_version where product like 'Oracle%' and to_number(substr(version,1,2)) = 12")
       create_tables
       class ::Post < ActiveRecord::Base
         has_many :comments, dependent: :destroy
@@ -200,7 +198,6 @@ describe "OracleEnhancedAdapter context index" do
     end
 
     it "should create multiple table index with specified main index column" do
-      pending "It always fails when Oracle 12c 12.1.0 used." if @oracle12c
       @conn.add_context_index :posts,
         [:title, :body,
         # specify aliases always with AS keyword
@@ -218,7 +215,6 @@ describe "OracleEnhancedAdapter context index" do
     end
 
     it "should create multiple table index with specified main index column (when subquery has newlines)" do
-      pending "It always fails when Oracle 12c 12.1.0 used." if @oracle12c
       @conn.add_context_index :posts,
         [:title, :body,
          # specify aliases always with AS keyword
@@ -381,9 +377,6 @@ describe "OracleEnhancedAdapter context index" do
 
     describe "with table prefix and suffix" do
       before(:all) do
-        @conn = ActiveRecord::Base.connection
-        @oracle12c = !! @conn.select_value(
-                        "select * from product_component_version where product like 'Oracle%' and to_number(substr(version,1,2)) = 12")
         ActiveRecord::Base.table_name_prefix = 'xxx_'
         ActiveRecord::Base.table_name_suffix = '_xxx'
         create_tables
@@ -408,7 +401,6 @@ describe "OracleEnhancedAdapter context index" do
       end
 
       it "should dump definition of multiple table index with options" do
-        pending "It always fails when Oracle 12c 12.1.0 used." if @oracle12c
         options = {
           name: 'xxx_post_and_comments_i',
           index_column: :all_text, index_column_trigger_on: :updated_at,

@@ -1,3 +1,5 @@
+require 'active_record/base'
+
 module ActiveRecord
   module ConnectionAdapters
     class OracleEnhancedAdapter
@@ -9,8 +11,10 @@ module ActiveRecord
         end
 
         def create
-          print "Please provide the SYSTEM password for your Oracle installation\n>"
-          system_password = $stdin.gets.strip
+          system_password = ENV.fetch('ORACLE_SYSTEM_PASSWORD') {
+            print "Please provide the SYSTEM password for your Oracle installation (set ORACLE_SYSTEM_PASSWORD to avoid this prompt)\n>"
+            $stdin.gets.strip
+          }
           establish_connection(@config.merge('username' => 'SYSTEM', 'password' => system_password))
           begin
             connection.execute "CREATE USER #{@config['username']} IDENTIFIED BY #{@config['password']}"
@@ -24,6 +28,7 @@ module ActiveRecord
           connection.execute "GRANT unlimited tablespace TO #{@config['username']}"
           connection.execute "GRANT create session TO #{@config['username']}"
           connection.execute "GRANT create table TO #{@config['username']}"
+          connection.execute "GRANT create view TO #{@config['username']}"
           connection.execute "GRANT create sequence TO #{@config['username']}"
         end
 
@@ -40,9 +45,6 @@ module ActiveRecord
         def structure_dump(filename)
           establish_connection(@config)
           File.open(filename, 'w:utf-8') { |f| f << connection.structure_dump }
-          if connection.supports_migrations?
-            File.open(filename, 'a') { |f| f << connection.dump_schema_information }
-          end
           if @config['structure_dump'] == 'db_stored_code'
              File.open(filename, 'a') { |f| f << connection.structure_dump_db_stored_code }
           end
@@ -58,4 +60,3 @@ module ActiveRecord
 end
 
 ActiveRecord::Tasks::DatabaseTasks.register_task(/(oci|oracle)/, ActiveRecord::ConnectionAdapters::OracleEnhancedAdapter::DatabaseTasks)
-

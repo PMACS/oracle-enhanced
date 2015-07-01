@@ -179,11 +179,11 @@ If you want to put Oracle enhanced adapter on top of existing schema tables then
 
     class Employee < ActiveRecord::Base
       # specify schema and table name
-      self.table_name "hr.hr_employees"
+      self.table_name = "hr.hr_employees"
       # specify primary key name
-      self.primary_key "employee_id"
+      self.primary_key = "employee_id"
       # specify sequence name
-      self.sequence_name "hr.hr_employee_s"
+      self.sequence_name = "hr.hr_employee_s"
       # set which DATE columns should be converted to Ruby Date
       set_date_columns :hired_on, :birth_date_on
       # set which DATE columns should be converted to Ruby Time
@@ -223,9 +223,10 @@ You can also access remote tables over database link using
 
 ### Custom create, update and delete methods
 
-If you have legacy schema and you are not allowed to do direct INSERTs, UPDATEs and DELETEs in legacy schema tables and need to use existing PL/SQL procedures for create, updated, delete operations then you should add `ruby-plsql` gem to your application and then define custom create, update and delete methods, see example:
+If you have legacy schema and you are not allowed to do direct INSERTs, UPDATEs and DELETEs in legacy schema tables and need to use existing PL/SQL procedures for create, updated, delete operations then you should add `ruby-plsql` gem to your application, include `ActiveRecord::OracleEnhancedProcedures` in your model and then define custom create, update and delete methods, see example:
 
     class Employee < ActiveRecord::Base
+      include ActiveRecord::OracleEnhancedProcedures
       # when defining create method then return ID of new record that will be assigned to id attribute of new object
       set_create_method do
         plsql.employees_pkg.create_employee(

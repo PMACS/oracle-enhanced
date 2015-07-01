@@ -2,9 +2,11 @@ require 'delegate'
 
 begin
   require "oci8"
-rescue LoadError
-  # OCI8 driver is unavailable.
-  raise LoadError, "ERROR: ActiveRecord oracle_enhanced adapter could not load ruby-oci8 library. Please install ruby-oci8 gem."
+rescue LoadError => e
+  # OCI8 driver is unavailable or failed to load a required library.
+  raise LoadError, "ERROR: '#{e.message}'. "\
+    "ActiveRecord oracle_enhanced adapter could not load ruby-oci8 library. "\
+    "You may need install ruby-oci8 gem."
 end
 
 # check ruby-oci8 version
@@ -277,7 +279,7 @@ module ActiveRecord
           value.hour == 0 && value.min == 0 && value.sec == 0
         end
       end
-      
+
       def create_time_with_default_timezone(value)
         year, month, day, hour, min, sec, usec = case value
         when Time
@@ -297,7 +299,7 @@ module ActiveRecord
       end
 
     end
-    
+
     # The OracleEnhancedOCIFactory factors out the code necessary to connect and
     # configure an Oracle/OCI connection.
     class OracleEnhancedOCIFactory #:nodoc:
@@ -346,8 +348,8 @@ module ActiveRecord
         conn
       end
     end
-    
-    
+
+
   end
 end
 
