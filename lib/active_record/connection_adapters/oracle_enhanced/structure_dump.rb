@@ -127,7 +127,7 @@ module ActiveRecord #:nodoc:
           if respond_to?(:foreign_keys) && (foreign_keys = foreign_keys(table["table_name"])).any?
             foreign_keys.map do |fk|
               sql = "ALTER TABLE #{quote_table_name(fk.from_table)} ADD CONSTRAINT #{quote_column_name(fk.options[:name])} "
-              sql << "#{foreign_key_definition(fk.to_table, fk.options)}"
+              sql << "#{foreign_key_definition(fk.to_table, fk.options) << table_definition_tablespace}"
             end
           end
         end.flatten.compact
