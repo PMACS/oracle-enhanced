@@ -826,7 +826,7 @@ module ActiveRecord
           value = attributes[col.name]
           # changed sequence of next two lines - should check if value is nil before converting to yaml
           next if value.nil?  || (value == '')
-          value = value.to_yaml if klass.serialized_attributes[col.name]
+          value = value.to_yaml if col.cast_type.is_a?(Type::Serialized) # klass.serialized_attributes[col.name]
           uncached do
             sql = is_with_cpk ? "SELECT #{quote_column_name(col.name)} FROM #{quote_table_name(table_name)} WHERE #{klass.composite_where_clause(id)} FOR UPDATE" :
               "SELECT #{quote_column_name(col.name)} FROM #{quote_table_name(table_name)} WHERE #{quote_column_name(klass.primary_key)} = #{id} FOR UPDATE"
@@ -846,17 +846,22 @@ module ActiveRecord
 
       # Current database session user
       def current_user
-        select_value("SELECT SYS_CONTEXT('userenv', 'session_user') FROM dual")
+        select_value("SELECT SYS_CONTEXT('userenv', 'current_schema') FROM dual")
+      end
+      
+      # Current database session schema
+      def current_schema
+        select_value("SELECT SYS_CONTEXT('userenv', 'current_schema') FROM dual")
       end
 
       # Default tablespace name of current user
       def default_tablespace
-        select_value("SELECT LOWER(default_tablespace) FROM user_users WHERE username = SYS_CONTEXT('userenv', 'session_user')")
+        select_value("SELECT LOWER(default_tablespace) FROM user_users WHERE username = SYS_CONTEXT('userenv', 'current_schema')")
       end
 
       def tables(name = nil) #:nodoc:
         select_values(
-        "SELECT DECODE(table_name, UPPER(table_name), LOWER(table_name), table_name) FROM all_tables WHERE owner = SYS_CONTEXT('userenv', 'session_user') AND secondary = 'N'",
+        "SELECT DECODE(table_name, UPPER(table_name), LOWER(table_name), table_name) FROM all_tables WHERE owner = SYS_CONTEXT('userenv', 'current_schema') AND secondary = 'N'",
         name)
       end
 
@@ -869,7 +874,7 @@ module ActiveRecord
       end
 
       def materialized_views #:nodoc:
-        select_values("SELECT LOWER(mview_name) FROM all_mviews WHERE owner = SYS_CONTEXT('userenv', 'session_user')")
+        select_values("SELECT LOWER(mview_name) FROM all_mviews WHERE owner = SYS_CONTEXT('userenv', 'current_schema')")
       end
 
       cattr_accessor :all_schema_indexes #:nodoc:

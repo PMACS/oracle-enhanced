@@ -150,9 +150,7 @@ module ActiveRecord #:nodoc:
           end
           # update just dirty attributes
           if partial_writes?
-            # Serialized attributes should always be written in case they've been
-            # changed in place.
-            update_using_custom_method(changed | (attributes.keys & self.class.serialized_attributes.keys))
+            update_using_custom_method(changed | attributes.keys)
           else
             update_using_custom_method(attribute_names)
           end
