@@ -1,6 +1,9 @@
 activerecord-oracle_enhanced-adapter
 ====================================
 
+**This fork is no longer maintained. As of v1.6.5, the upstream [Oracle Enhanced Adapter](https://github.com/rsim/oracle-enhanced) supports the `schema` option when defining connections and so there is no longer a reason for this fork.**
+
+
 Oracle enhanced adapter for ActiveRecord
 
 DESCRIPTION
